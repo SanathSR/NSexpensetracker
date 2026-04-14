@@ -22,4 +22,4 @@ app.use('/dashboard', require('./routes/dashboard'));
 app.use('/transactions', require('./routes/transactions'));
 app.use('/lending', require('./routes/lending'));
 
-app.listen(3000, () => console.log('Running on 3000'));
+app.listen(8000, () => console.log('Running on 8000'));
