@@ -1,0 +1,201 @@
+<%- include('partials/header') %>
+
+    <div class="container mt-4">
+
+        <!-- 🔍 FILTER -->
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body">
+
+                <form class="row g-2" method="GET" action="/lending">
+
+                    <div class="col-md-3 col-6">
+                        <label class="form-label">From</label>
+                        <input type="date" name="from" class="form-control" value="<%= filters?.from || '' %>">
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                        <label class="form-label">To</label>
+                        <input type="date" name="to" class="form-control" value="<%= filters?.to || '' %>">
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                        <label class="form-label">Direction</label>
+                        <select name="direction" class="form-select">
+                            <option value="">All</option>
+                            <option value="sent" <%=filters?.direction==='sent' ?'selected':'' %>>Sent</option>
+                            <option value="received" <%=filters?.direction==='received' ?'selected':'' %>>Received
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3 col-6">
+                        <label class="form-label">Min Amount</label>
+                        <input name="amount" class="form-control" placeholder="₹" value="<%= filters?.amount || '' %>">
+                    </div>
+
+                    <div class="col-md-2 col-12 d-flex align-items-end">
+                        <button class="btn btn-primary w-100">Filter</button>
+                    </div>
+
+                </form>
+
+            </div>
+        </div>
+
+        <!-- 📊 TABLE -->
+        <div class="card shadow-lg border-0">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between mb-3">
+                    <h4 class="fw-bold">Lending</h4>
+                    <a href="/lending/create" class="btn btn-primary">+ Add</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Date</th>
+                                <th>To</th>
+                                <th>Amount</th>
+                                <th>Direction</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <% if(!data || data.length===0){ %>
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">
+                                        No records found
+                                    </td>
+                                </tr>
+                                <% } %>
+
+                                    <% data.forEach(d=>{ %>
+                                        <tr>
+                                            <td>
+                                                <%= new Date(d.dateon).toLocaleDateString() %>
+                                            </td>
+                                            <td>
+                                                <%= d.to_whom %>
+                                            </td>
+
+                                            <td class="fw-bold text-success">
+                                                ₹ <%= Number(d.amount).toLocaleString() %>
+                                            </td>
+
+                                            <td>
+                                                <span
+                                                    class="badge <%= d.direction==='sent'?'bg-danger':'bg-success' %>">
+                                                    <%= d.direction %>
+                                                </span>
+                                            </td>
+
+                                            <td>
+                                                <a href="/lending/edit/<%= d.id %>"
+                                                    class="btn btn-sm btn-warning">Edit</a>
+                                                <button class="btn btn-sm btn-danger deleteBtn"
+                                                    data-id="<%= d.id %>">Delete</button>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 🔐 DELETE MODAL -->
+    <div class="modal fade" id="deleteModal">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete Lending</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <p class="text-muted">Enter admin password to confirm delete</p>
+
+                    <div id="deleteError" class="text-danger mb-2"></div>
+
+                    <form id="deleteForm">
+                        <input type="password" name="adminPassword" class="form-control mb-3"
+                            placeholder="Admin Password" required>
+
+                        <button class="btn btn-danger w-100">Delete</button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔥 SCRIPT -->
+    <script>
+
+        let deleteId = null;
+
+        // open modal
+        document.querySelectorAll('.deleteBtn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                deleteId = btn.dataset.id;
+                document.getElementById('deleteError').innerText = "";
+                new bootstrap.Modal(document.getElementById('deleteModal')).show();
+            });
+        });
+
+        // delete API
+        document.getElementById('deleteForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const btn = this.querySelector('button');
+
+            btn.disabled = true;
+            btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Deleting...`;
+
+            try {
+
+                const res = await fetch('/lending/delete/' + deleteId, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        adminPassword: this.adminPassword.value
+                    })
+                });
+
+                const data = await res.json();
+
+                if (!data.success) {
+                    document.getElementById('deleteError').innerText = data.message;
+                } else {
+
+                    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+
+                    showToast("Lending deleted 💰");
+
+                    setTimeout(() => location.reload(), 1000);
+                }
+
+            } catch (err) {
+                document.getElementById('deleteError').innerText = "Server error";
+            }
+
+            btn.disabled = false;
+            btn.innerHTML = "Delete";
+        });
+
+    </script>
+
+    <%- include('partials/footer') %>

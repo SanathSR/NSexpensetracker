@@ -1,0 +1,208 @@
+<%- include('partials/header') %>
+
+    <div class="container mt-4">
+
+        <!-- 🔥 CARDS -->
+        <div class="row g-3">
+
+            <div class="col-md-4 col-12">
+                <div class="card shadow border-0 text-white bg-primary">
+                    <div class="card-body">
+                        <h6>This Month</h6>
+                        <h3>₹ <%= Number(thisMonth || 0).toLocaleString() %>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-12">
+                <div class="card shadow border-0 text-white bg-success">
+                    <div class="card-body">
+                        <h6>Last Month</h6>
+                        <h3>₹ <%= Number(lastMonth || 0).toLocaleString() %>
+                        </h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4 col-12">
+                <div class="card shadow border-0 text-white bg-dark">
+                    <div class="card-body">
+                        <h6>Lending Balance</h6>
+                        <h3>₹ <%= Number(lendingTotal || 0).toLocaleString() %>
+                        </h3>
+                        <small>(Sent - Received)</small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 🔥 PIE CHART -->
+        <div class="card shadow border-0 mt-4">
+            <div class="card-body">
+                <h5>Spending by Category (This Month)</h5>
+
+                <div style="max-width:400px;margin:auto;">
+                    <canvas id="pieChart"></canvas>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 🔥 RECENT TRANSACTIONS -->
+        <div class="card shadow border-0 mt-4">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between mb-3">
+                    <h5>Recent Transactions</h5>
+                    <a href="/transactions" class="btn btn-sm btn-primary">View All</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                                <th>To</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <% if(recentTransactions.length===0){ %>
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No transactions</td>
+                                </tr>
+                                <% } %>
+
+                                    <% recentTransactions.forEach(d=>{ %>
+                                        <tr>
+                                            <td>
+                                                <%= new Date(d.dateon).toLocaleDateString() %>
+                                            </td>
+                                            <td class="fw-bold text-success">₹ <%= Number(d.amount).toLocaleString() %>
+                                            </td>
+                                            <td><span class="badge bg-info">
+                                                    <%= d.type %>
+                                                </span></td>
+                                            <td>
+                                                <%= d.to_whom %>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- 🔥 RECENT LENDING -->
+        <div class="card shadow border-0 mt-4">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between mb-3">
+                    <h5>Recent Lending</h5>
+                    <a href="/lending" class="btn btn-sm btn-primary">View All</a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover">
+
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>To</th>
+                                <th>Amount</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <% if(recentLending.length===0){ %>
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No lending data</td>
+                                </tr>
+                                <% } %>
+
+                                    <% recentLending.forEach(d=>{ %>
+                                        <tr>
+                                            <td>
+                                                <%= new Date(d.dateon).toLocaleDateString() %>
+                                            </td>
+                                            <td>
+                                                <%= d.to_whom %>
+                                            </td>
+                                            <td class="fw-bold">₹ <%= Number(d.amount).toLocaleString() %>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge <%= d.direction==='sent'?'bg-danger':'bg-success' %>">
+                                                    <%= d.direction %>
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        <% }) %>
+                        </tbody>
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 🔥 CHART -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+
+            let data;
+
+            try {
+                data = JSON.parse('<%- JSON.stringify(typePie || []) %>');
+            } catch (e) {
+                console.error("Pie data error:", e);
+                data = [];
+            }
+
+            if (!Array.isArray(data)) data = [];
+
+            const labels = data.map(d => d.type || 'Unknown');
+            const values = data.map(d => Number(d.total) || 0);
+
+            const canvas = document.getElementById('pieChart');
+
+            if (labels.length === 0) {
+                canvas.parentElement.innerHTML =
+                    "<p class='text-muted text-center'>No data available for this month</p>";
+                return;
+            }
+
+            new Chart(canvas, {
+                type: 'pie',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: values
+                    }]
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+        });
+    </script>
+
+    <%- include('partials/footer') %>

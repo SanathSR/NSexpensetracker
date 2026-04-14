@@ -1,0 +1,63 @@
+body {
+  background: linear-gradient(135deg, #f9fafb, #f3f4f6, #eef2ff);
+  min-height: 100vh;
+}
+
+.card {
+  border-radius: 14px;
+  border: none;
+}
+
+.shadow-lg {
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08) !important;
+}
+/* 
+.card {
+  border-radius: 12px;
+} */
+
+.table td, .table th {
+  vertical-align: middle;
+}
+
+.btn {
+  border-radius: 8px;
+}
+
+.badge {
+  padding: 6px 10px;
+}
+
+.premium-card {
+  background: linear-gradient(135deg, #4f46e5, #3b82f6);
+  border-radius: 16px;
+}
+
+.premium-card-2 {
+  background: linear-gradient(135deg, #10b981, #059669);
+  border-radius: 16px;
+}
+
+.premium-card-3 {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  border-radius: 16px;
+}
+
+.icon-box {
+  width: 45px;
+  height: 45px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}

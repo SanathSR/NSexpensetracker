@@ -1,0 +1,89 @@
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+
+<div class="card shadow-lg border-0">
+<div class="card-body p-4">
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold">Create Transaction</h4>
+  <a href="/transactions" class="btn btn-outline-secondary btn-sm">
+    ⬅ Back
+  </a>
+</div>
+
+<!-- FORM -->
+<form method="POST">
+
+<div class="row g-3">
+
+<!-- DATE -->
+<div class="col-md-3 col-6">
+<label class="form-label">Date</label>
+<input type="date" name="dateon" class="form-control" required>
+</div>
+
+<!-- AMOUNT -->
+<div class="col-md-3 col-6">
+<label class="form-label">Amount</label>
+<input type="number" name="amount" class="form-control" placeholder="₹ Amount" required>
+</div>
+
+<!-- MODE -->
+<div class="col-md-3 col-6">
+<label class="form-label">Mode</label>
+<select name="mode" class="form-select" required>
+  <option value="UPI">UPI</option>
+  <option value="cash">Cash</option>
+  <option value="transfer">Transfer</option>
+</select>
+</div>
+
+<!-- TYPE -->
+<div class="col-md-3 col-6">
+<label class="form-label">Type</label>
+<select name="type" class="form-select" required>
+  <option value="personal">Personal</option>
+  <option value="home">Home</option>
+  <option value="food">Food</option>
+  <option value="shopping">Shopping</option>
+  <option value="travel">Travel</option>
+  <option value="other">Other</option>
+</select>
+</div>
+
+<!-- PURPOSE -->
+<div class="col-md-6">
+<label class="form-label">Purpose</label>
+<input name="purpose" class="form-control" placeholder="What was this for?">
+</div>
+
+<!-- TO WHOM -->
+<div class="col-md-6">
+<label class="form-label">To / Paid To</label>
+<input name="to_whom" class="form-control" placeholder="Person / Merchant name">
+</div>
+
+<!-- COMMENTS -->
+<div class="col-12">
+<label class="form-label">Comments</label>
+<textarea name="comments" class="form-control" rows="3" placeholder="Optional notes..."></textarea>
+</div>
+
+</div>
+
+<!-- BUTTONS -->
+<div class="mt-4 d-flex justify-content-end gap-2">
+  <a href="/transactions" class="btn btn-light">Cancel</a>
+  <button class="btn btn-primary px-4">💾 Save Transaction</button>
+</div>
+
+</form>
+
+</div>
+</div>
+
+</div>
+
+<%- include('partials/footer') %>

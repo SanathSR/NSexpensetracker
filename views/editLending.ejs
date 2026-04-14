@@ -1,0 +1,160 @@
+<%- include('partials/header') %>
+
+<div class="container mt-4">
+
+<div class="card shadow-lg border-0">
+<div class="card-body p-4">
+
+<!-- HEADER -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h4 class="fw-bold">Edit Lending</h4>
+  <a href="/lending" class="btn btn-outline-secondary btn-sm">⬅ Back</a>
+</div>
+
+<!-- FORM -->
+<form id="editForm">
+
+<div class="row g-3">
+
+<div class="col-md-3 col-6">
+<label class="form-label">Date</label>
+<input type="date" name="dateon"
+value="<%= data.dateon ? data.dateon.toISOString().split('T')[0] : '' %>"
+class="form-control">
+</div>
+
+<div class="col-md-3 col-6">
+<label class="form-label">Amount</label>
+<input name="amount" value="<%= data.amount || '' %>"
+class="form-control" placeholder="₹ Amount">
+</div>
+
+<div class="col-md-3 col-6">
+<label class="form-label">Mode</label>
+<select name="mode" class="form-select">
+<option value="UPI" <%= data.mode==='UPI'?'selected':'' %>>UPI</option>
+<option value="cash" <%= data.mode==='cash'?'selected':'' %>>Cash</option>
+<option value="transfer" <%= data.mode==='transfer'?'selected':'' %>>Transfer</option>
+</select>
+</div>
+
+<div class="col-md-3 col-6">
+<label class="form-label">Direction</label>
+<select name="direction" class="form-select">
+<option value="sent" <%= data.direction==='sent'?'selected':'' %>>Sent</option>
+<option value="received" <%= data.direction==='received'?'selected':'' %>>Received</option>
+</select>
+</div>
+
+<div class="col-md-6">
+<label class="form-label">To / From</label>
+<input name="to_whom" value="<%= data.to_whom || '' %>" class="form-control">
+</div>
+
+<div class="col-12">
+<label class="form-label">Comments</label>
+<textarea name="comments" class="form-control" rows="2"><%= data.comments || '' %></textarea>
+</div>
+
+</div>
+
+<!-- BUTTONS -->
+<div class="mt-4 d-flex justify-content-end gap-2">
+  <a href="/lending" class="btn btn-light">Cancel</a>
+  <button type="button" id="updateBtn" class="btn btn-primary px-4">💾 Update</button>
+</div>
+
+</form>
+
+</div>
+</div>
+
+</div>
+
+<!-- 🔐 MODAL -->
+<div class="modal fade" id="updateModal">
+<div class="modal-dialog modal-dialog-centered">
+<div class="modal-content">
+
+<div class="modal-header">
+<h5 class="modal-title">Admin Password</h5>
+<button class="btn-close" data-bs-dismiss="modal"></button>
+</div>
+
+<div class="modal-body">
+
+<div id="updateError" class="text-danger mb-2"></div>
+
+<form id="updateForm">
+<input type="hidden" id="formData">
+
+<input type="password" name="adminPassword"
+class="form-control mb-3"
+placeholder="Enter Admin Password" required>
+
+<button class="btn btn-success w-100">Confirm</button>
+</form>
+
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+
+// 🔥 OPEN MODAL
+document.getElementById('updateBtn').addEventListener('click', () => {
+
+  const form = document.getElementById('editForm');
+
+  const obj = Object.fromEntries(new FormData(form).entries());
+
+  document.getElementById('formData').value = JSON.stringify(obj);
+
+  document.getElementById('updateError').innerText = "";
+
+  new bootstrap.Modal(document.getElementById('updateModal')).show();
+});
+
+
+// 🔥 SUBMIT UPDATE
+document.getElementById('updateForm').addEventListener('submit', async function(e){
+  e.preventDefault();
+
+  const btn = this.querySelector('button');
+
+  btn.disabled = true;
+  btn.innerHTML = `<span class="spinner-border spinner-border-sm"></span> Validating...`;
+
+  const res = await fetch(window.location.pathname,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      adminPassword: this.adminPassword.value,
+      formData: document.getElementById('formData').value
+    })
+  });
+
+  const data = await res.json();
+
+  btn.disabled = false;
+  btn.innerHTML = "Confirm";
+
+  if(!data.success){
+    document.getElementById('updateError').innerText = data.message;
+  } else {
+
+    bootstrap.Modal.getInstance(document.getElementById('updateModal')).hide();
+
+    showToast("Lending updated successfully 💰");
+
+    setTimeout(()=>{
+      window.location.href = '/lending';
+    }, 1200);
+  }
+
+});
+</script>
+
+<%- include('partials/footer') %>
